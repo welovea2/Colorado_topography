@@ -1,0 +1,83 @@
+'''This program intends to make a gray-scale topograohical map using
+a txt file that has 560 rows and 760 columns
+Inside these columns are the value of the elevations at various points'''
+
+#I start by importing dudraw which I'll later use to draw the image.
+import dudraw
+
+dudraw.set_canvas_size(760,560)
+dudraw.set_x_scale(0,760)
+#There are 760 columns on each line.
+dudraw.set_y_scale(0,560)
+#There are 560 rows in the file.
+dudraw.clear_rgb(165,165,165)
+#The variable for the list of all the elevations
+elevations_list=[]
+#This opens the file
+with open('CO_elevations_feet.txt') as elevations:
+    #This goes through every line in the file
+    for line in elevations:
+        line=line.strip()
+        #This adds the line to the list           
+        elevations_list.append(line)
+
+for rows in range(len(elevations_list)):
+    #I made the elements in the list a string
+    #so I could split into a list with multiple elements
+    place_holder=str(elevations_list[rows])
+    elevations_list[rows]=place_holder.split()
+
+
+
+#This block changes every element in the list to an integer
+for rows in range(len(elevations_list)):
+    for col in range(len(elevations_list[rows])):
+        num_element=int(elevations_list[rows][col])
+        elevations_list[rows][col]=num_element
+
+
+#I introduce a variable I'll use as the maximum
+maximum=0
+minimum=14104
+#This block iterates though the entire list
+#If current element>than the current max then the max will be equal to the current element
+for rows in range(len(elevations_list)):
+    for col in range(len(elevations_list[rows])):
+        if elevations_list[rows][col]>maximum:
+            maximum=elevations_list[rows][col]
+
+print(maximum)
+#I use a while true statement to process user input
+while True:
+    #If a key is pressed the animation ends,
+    if dudraw.has_next_key_typed():
+        break
+    
+   
+    for rows in range(len(elevations_list)):
+        for col in range(len(elevations_list[rows])):
+            #The intensity of the lowest point is sea level and the highest is white
+            intensity=elevations_list[rows][col]*255/maximum
+            #dudraw only accepts integers for color so I made the variable an integer
+            intensity=int(intensity)
+            dudraw.set_pen_color_rgb(intensity,intensity,intensity)
+            #The program starts at the north so this makes it essentially go from top to bottom
+            dudraw.point(col,560-rows)
+    #Tis is how I find the elevation at any point.
+    #Each point in the list is a coordinate
+    if dudraw.mouse_is_pressed():
+        y_click=dudraw.mouse_y()
+        y_click=int(y_click)
+        x_click=dudraw.mouse_x()
+        x_click=int(x_click)
+        #So I basically put the co-ordinates into the list then return the value at that index
+        point_elevation=elevations_list[y_click-560][x_click]
+        #I chose white because it's visible.
+        dudraw.set_pen_color_rgb(255,255,255)
+        #This is how the statement is displayed
+        dudraw.text(570,140,str(f'The elevation at this point is {point_elevation} feet'))
+
+    
+    #This allows the image to update    
+    dudraw.show(500)            
+print(elevations_list)
